@@ -1,0 +1,138 @@
+// arcelor-backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CustomerApplication {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Application Status
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED, DRAFT
+
+  // OCR Metadata
+  ocrSuccess    Boolean  @default(false)
+  ocrTimestamp  DateTime?
+  ocrError      String?
+
+  // ===== STEP 1: REQUEST DATA =====
+  centro                      String?
+  fechaSolicitudAlta          DateTime?
+  fechaRecepcion              DateTime?
+  canal                       String?
+  sector                      String?
+  noProveedor                 String?
+  condPagoProv                String?
+  dadoDeAltaComoProveedor     String?
+  abiertoComoCliente          Boolean   @default(false)
+  centroOrigen                String?
+
+  // ===== STEP 2: GENERAL DATA =====
+  numeroCliente               String?
+  nombre                      String    // Required
+  cif                         String    @unique // Required & Unique
+  conceptoBusqueda            String?
+  ramo                        String?
+  calle                       String?
+  numero                      String?
+  codPostal                   String?
+  poblacion                   String?
+  region                      String?
+  pais                        String?
+  apdoCorreos                 String?
+  poblApdo                    String?
+  codApdo                     String?
+  idioma                      String?
+  tipoCliente                 String?
+  personaContactoEnvioFacturaEmail String?
+  emailEnvioFactura           String?
+  telefono1                   String?
+  nombrePersonaContacto       String?
+  apellido                    String?
+  telefono                    String?
+  emailPersonaContacto        String?
+  textosInformativos          String?
+  codigoIban                  String?
+  horarioDeDescarga           String?
+  personaContacto             String?
+
+  // ===== STEP 3: SALES AREA DATA =====
+  grupoVendedores             String?
+  oficinaVentas               String?
+  moneda                      String    @default("EUR")
+  condExp                     String?
+  zonaDeVentas                String?
+  incoterm                    String?
+  calendarioFacturacion       String?
+  valoracionPortes            String?
+  tipoFacturacion             String?
+  certificados                String?
+  factEmail                   String?
+  claseAbc                    String?
+  procedimientoReclamacion    String?
+  emailReclamacion            String?
+
+  // ===== STEP 4: RECIPIENTS =====
+  destinatarioMercanciaNombre     String?
+  destinatarioMercanciaCalle      String?
+  destinatarioMercanciaNumero     String?
+  destinatarioMercanciaCodPostal  String?
+  destinatarioMercanciaPoblacion  String?
+  destinatarioMercanciaPais       String?
+  destinatarioFacturaNombre       String?
+  destinatarioFacturaCalle        String?
+  destinatarioFacturaNumero       String?
+  destinatarioFacturaCodPostal    String?
+  destinatarioFacturaPoblacion    String?
+  destinatarioFacturaPais         String?
+
+  // ===== STEP 5: FINANCIAL CONDITIONS =====
+  vPago                       String?
+  condPago                    String?
+  formaPago                   String?
+  descuentoPp                 String?
+  gastosFin                   String?
+  diasMediosPago              String?
+  ventasEstimadasAnoEuros     String?
+  ventasLimitadasEuros        String?
+  creditoSolicitadoEuros      String?
+  limiteCredito               String?
+  observacionesFinancieras    String?
+
+  // ===== STEP 6: APPROVED CONDITIONS (Internal) =====
+  creditoConcedidoEuros       String?
+  dppOficial                  String?
+  gFinancieroOficial          String?
+  fechaAprobacion             DateTime?
+  aprobadoPor                 String?
+  estadoAprobacion            String    @default("pending")
+  notasAprobacion             String?
+
+  @@index([cif])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  applicationId String?
+  action      String   // CREATE, UPDATE, APPROVE, REJECT
+  userId      String?  // For future auth integration
+  changes     String?  // JSON string of changes
+  ipAddress   String?
+  userAgent   String?
+
+  @@index([applicationId])
+  @@index([createdAt])
+}
+
+
+
